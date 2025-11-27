@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, MotionValue } from "framer-motion";
 import { useRef } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import TransitionOverlay from "@/components/TransitionOverlay";
@@ -280,7 +280,7 @@ export default function Home() {
 }
 
 // Separate component to use hooks properly
-function ProgressDot({ progress, threshold }: { progress: any; threshold: number }) {
+function ProgressDot({ progress, threshold }: { progress: MotionValue<number>; threshold: number }) {
   const backgroundColor = useTransform(
     progress,
     [threshold, threshold + 0.1],
