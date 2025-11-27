@@ -42,6 +42,14 @@ export default function Home() {
 
   // Morphing shape path
   const shapeProgress = useTransform(smoothProgress, [0.15, 0.35], [0, 1]);
+  
+  // Shape morphing values (moved from JSX)
+  const shapeBorderRadius = useTransform(shapeProgress, [0, 0.5, 1], ["50%", "30%", "10%"]);
+  const shapeRotation = useTransform(shapeProgress, [0, 1], [0, 90]);
+  const innerBorderRadius = useTransform(shapeProgress, [0, 0.5, 1], ["10%", "30%", "50%"]);
+  
+  // Animated underline width
+  const underlineWidth = useTransform(smoothProgress, [0.35, 0.5], ["0%", "60%"]);
 
   return (
     <main ref={containerRef} className="relative h-[500vh]">
@@ -130,15 +138,15 @@ export default function Home() {
               className="w-64 h-64 md:w-96 md:h-96 relative"
               style={{
                 background: "linear-gradient(135deg, rgba(99,102,241,0.3) 0%, rgba(236,72,153,0.3) 50%, rgba(34,211,238,0.3) 100%)",
-                borderRadius: useTransform(shapeProgress, [0, 0.5, 1], ["50%", "30%", "10%"]),
-                rotate: useTransform(shapeProgress, [0, 1], [0, 90]),
+                borderRadius: shapeBorderRadius,
+                rotate: shapeRotation,
               }}
             >
               {/* Inner rotating element */}
               <motion.div
                 className="absolute inset-8 border-2 border-white/30"
                 style={{
-                  borderRadius: useTransform(shapeProgress, [0, 0.5, 1], ["10%", "30%", "50%"]),
+                  borderRadius: innerBorderRadius,
                 }}
                 animate={{ rotate: -360 }}
                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
@@ -194,7 +202,7 @@ export default function Home() {
             <motion.div 
               className="h-1 bg-gradient-to-r from-indigo-500 via-pink-500 to-cyan-500 mt-8 mx-auto"
               style={{ 
-                width: useTransform(smoothProgress, [0.35, 0.5], ["0%", "60%"]),
+                width: underlineWidth,
               }}
             />
           </div>
@@ -260,24 +268,29 @@ export default function Home() {
         </motion.div>
 
         {/* Scroll progress indicator */}
-        <motion.div 
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2"
-        >
-          {[0, 0.25, 0.5, 0.75].map((threshold, i) => (
-            <motion.div
-              key={i}
-              className="w-2 h-2 rounded-full"
-              style={{
-                backgroundColor: useTransform(
-                  smoothProgress,
-                  [threshold, threshold + 0.1],
-                  ["rgba(255,255,255,0.2)", "rgba(236,72,153,1)"]
-                ),
-              }}
-            />
-          ))}
-        </motion.div>
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+          <ProgressDot progress={smoothProgress} threshold={0} />
+          <ProgressDot progress={smoothProgress} threshold={0.25} />
+          <ProgressDot progress={smoothProgress} threshold={0.5} />
+          <ProgressDot progress={smoothProgress} threshold={0.75} />
+        </div>
       </div>
     </main>
+  );
+}
+
+// Separate component to use hooks properly
+function ProgressDot({ progress, threshold }: { progress: any; threshold: number }) {
+  const backgroundColor = useTransform(
+    progress,
+    [threshold, threshold + 0.1],
+    ["rgba(255,255,255,0.2)", "rgba(236,72,153,1)"]
+  );
+  
+  return (
+    <motion.div
+      className="w-2 h-2 rounded-full"
+      style={{ backgroundColor }}
+    />
   );
 }
