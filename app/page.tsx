@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import FractalBackground from "@/components/FractalBackground";
+import EmergenceLoader from "@/components/EmergenceLoader";
 import CentralShape111 from "@/components/CentralShape111";
 import { GlowingArrowSet } from "@/components/GlowingArrow";
 import GlowingHomeIcon from "@/components/GlowingHomeIcon";
@@ -23,12 +24,6 @@ export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
   const [isNavigating, setIsNavigating] = useState(false);
   const { isTransitioning, transitionColor, triggerTransition, handleComplete } = useMatrixTransition();
-
-  // Skip loader for faster testing - auto-load after mount
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   const navigateTo = useCallback((screen: Screen, color: "indigo" | "pink" | "cyan" = "indigo") => {
     if (isNavigating) return;
@@ -72,11 +67,11 @@ export default function Home() {
       {/* Cursor Trail Effect */}
       <CursorTrail enabled={isLoaded} />
       
-      {/* Skip loader for testing - just show content immediately */}
-      {/* <EmergenceLoader 
+      {/* Emergence Loader - shapes assembling into logo */}
+      <EmergenceLoader 
         onComplete={() => setIsLoaded(true)} 
-        duration={2500}
-      /> */}
+        duration={4500}
+      />
       
       {/* Matrix Transition Effect */}
       <MatrixTransition 
