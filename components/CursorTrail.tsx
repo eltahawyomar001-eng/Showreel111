@@ -110,7 +110,7 @@ export default function CursorTrail({
       />
 
       {/* Trail particles */}
-      {particles.map((particle, index) => {
+      {particles.map((particle) => {
         const age = Date.now() - particle.id;
         const opacity = Math.max(0, 1 - age / 1000);
         const scale = Math.max(0.1, 1 - age / 1500);

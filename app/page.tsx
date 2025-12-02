@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useCallback, useEffect } from "react";
 import FractalBackground from "@/components/FractalBackground";
-import EmergenceLoader from "@/components/EmergenceLoader";
 import CentralShape111 from "@/components/CentralShape111";
 import { GlowingArrowSet } from "@/components/GlowingArrow";
 import GlowingHomeIcon from "@/components/GlowingHomeIcon";
