@@ -1,296 +1,440 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring, MotionValue } from "framer-motion";
-import { useRef } from "react";
-import AnimatedBackground from "@/components/AnimatedBackground";
-import TransitionOverlay from "@/components/TransitionOverlay";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback, useEffect } from "react";
+import FractalBackground from "@/components/FractalBackground";
+import EmergenceLoader from "@/components/EmergenceLoader";
+import CentralShape111 from "@/components/CentralShape111";
+import { GlowingArrowSet } from "@/components/GlowingArrow";
+import GlowingHomeIcon from "@/components/GlowingHomeIcon";
+import MatrixTransition, { useMatrixTransition } from "@/components/MatrixTransition";
+import ParticleText, { GradientText, TypewriterText, SplitRevealText } from "@/components/ParticleText";
+import CursorTrail from "@/components/CursorTrail";
 
 /**
- * Website Refresh Showreel - Demonstrating Transition Skills
- * Showcasing: zoom effects, shape morphing, text reveals, smooth transitions
+ * 1-1-1 Website Prototype
+ * Showcasing: Fractal emergence, glowing navigation, matrix transitions
+ * Built to reflect technical sophistication and artistic complexity
  */
+
+type Screen = "home" | "services" | "about" | "contact";
+
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [currentScreen, setCurrentScreen] = useState<Screen>("home");
+  const [isNavigating, setIsNavigating] = useState(false);
+  const { isTransitioning, transitionColor, triggerTransition, handleComplete } = useMatrixTransition();
 
-  // Smooth spring for scroll progress
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  // Skip loader for faster testing - auto-load after mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Section 1: Hero transforms
-  const heroScale = useTransform(smoothProgress, [0, 0.15], [1, 0.6]);
-  const heroOpacity = useTransform(smoothProgress, [0, 0.12], [1, 0]);
-  const heroRotate = useTransform(smoothProgress, [0, 0.15], [0, -10]);
+  const navigateTo = useCallback((screen: Screen, color: "indigo" | "pink" | "cyan" = "indigo") => {
+    if (isNavigating) return;
+    
+    setIsNavigating(true);
+    triggerTransition(color);
+    
+    // Change screen after transition starts
+    setTimeout(() => {
+      setCurrentScreen(screen);
+      setIsNavigating(false);
+    }, 1500);
+  }, [isNavigating, triggerTransition]);
 
-  // Section 2: Shape morphs in
-  const shape1Scale = useTransform(smoothProgress, [0.1, 0.25], [0, 1]);
-  const shape1Rotate = useTransform(smoothProgress, [0.1, 0.3], [180, 0]);
-  const shape1Opacity = useTransform(smoothProgress, [0.1, 0.2, 0.35, 0.4], [0, 1, 1, 0]);
+  const handleArrowNavigation = (direction: "up" | "down" | "left" | "right") => {
+    switch (direction) {
+      case "down":
+        navigateTo("services", "indigo");
+        break;
+      case "right":
+        navigateTo("about", "pink");
+        break;
+      case "left":
+        navigateTo("contact", "cyan");
+        break;
+      case "up":
+        navigateTo("home", "indigo");
+        break;
+    }
+  };
 
-  // Section 3: Text reveal
-  const text2Y = useTransform(smoothProgress, [0.3, 0.45], [100, 0]);
-  const text2Opacity = useTransform(smoothProgress, [0.3, 0.4, 0.55, 0.6], [0, 1, 1, 0]);
-  const text2Scale = useTransform(smoothProgress, [0.55, 0.65], [1, 1.5]);
-
-  // Section 4: Final zoom
-  const finalScale = useTransform(smoothProgress, [0.6, 0.8], [0.5, 1]);
-  const finalOpacity = useTransform(smoothProgress, [0.6, 0.75], [0, 1]);
-  const finalY = useTransform(smoothProgress, [0.6, 0.8], [50, 0]);
-
-  // Morphing shape path
-  const shapeProgress = useTransform(smoothProgress, [0.15, 0.35], [0, 1]);
-  
-  // Shape morphing values (moved from JSX)
-  const shapeBorderRadius = useTransform(shapeProgress, [0, 0.5, 1], ["50%", "30%", "10%"]);
-  const shapeRotation = useTransform(shapeProgress, [0, 1], [0, 90]);
-  const innerBorderRadius = useTransform(shapeProgress, [0, 0.5, 1], ["10%", "30%", "50%"]);
-  
-  // Animated underline width
-  const underlineWidth = useTransform(smoothProgress, [0.35, 0.5], ["0%", "60%"]);
+  const handleHomeClick = () => {
+    navigateTo("home", "indigo");
+  };
 
   return (
-    <main ref={containerRef} className="relative h-[500vh]">
-      <TransitionOverlay />
-      <AnimatedBackground />
+    <main className="relative min-h-screen overflow-hidden bg-[#030308]">
+      {/* Fractal Background - always present */}
+      <FractalBackground />
+      
+      {/* Cursor Trail Effect */}
+      <CursorTrail enabled={isLoaded} />
+      
+      {/* Skip loader for testing - just show content immediately */}
+      {/* <EmergenceLoader 
+        onComplete={() => setIsLoaded(true)} 
+        duration={2500}
+      /> */}
+      
+      {/* Matrix Transition Effect */}
+      <MatrixTransition 
+        isActive={isTransitioning} 
+        onComplete={handleComplete}
+        color={transitionColor}
+      />
 
-      {/* Fixed viewport container */}
-      <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
-        
-        {/* SECTION 1: Hero with zoom-out effect */}
-        <motion.div
-          className="absolute inset-0 flex flex-col items-center justify-center"
-          style={{ scale: heroScale, opacity: heroOpacity, rotate: heroRotate }}
-        >
-          {/* Animated title with stagger */}
-          <motion.div className="text-center">
-            <motion.p
-              className="text-sm md:text-base uppercase tracking-[0.4em] text-white/50 mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
-              Website Refresh Showreel
-            </motion.p>
-            
-            <motion.h1
-              className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.8 }}
-            >
-              <motion.span 
-                className="block text-white"
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1 }}
-              >
-                Smooth
-              </motion.span>
-              <motion.span 
-                className="block bg-gradient-to-r from-indigo-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent"
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1.2 }}
-              >
-                Transitions
-              </motion.span>
-            </motion.h1>
-
-            <motion.p
-              className="mt-8 text-lg text-white/40 uppercase tracking-[0.3em]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.8 }}
-            >
-              Scroll to explore
-            </motion.p>
-          </motion.div>
-
-          {/* Decorative floating shapes */}
+      {/* Main Content */}
+      <AnimatePresence mode="wait">
+        {isLoaded && (
           <motion.div
-            className="absolute w-32 h-32 border border-white/20 rounded-full"
-            style={{ top: "20%", left: "15%" }}
-            animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute w-24 h-24 border border-pink-500/30"
-            style={{ bottom: "25%", right: "20%", rotate: 45 }}
-            animate={{ rotate: [45, 135, 45], scale: [1, 1.2, 1] }}
-            transition={{ duration: 8, repeat: Infinity }}
-          />
-        </motion.div>
-
-        {/* SECTION 2: Morphing Shape */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ opacity: shape1Opacity }}
-        >
-          <motion.div
-            className="relative"
-            style={{ scale: shape1Scale, rotate: shape1Rotate }}
+            key={currentScreen}
+            className="fixed inset-0 flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            {/* Morphing geometric shape */}
-            <motion.div
-              className="w-64 h-64 md:w-96 md:h-96 relative"
-              style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.3) 0%, rgba(236,72,153,0.3) 50%, rgba(34,211,238,0.3) 100%)",
-                borderRadius: shapeBorderRadius,
-                rotate: shapeRotation,
-              }}
-            >
-              {/* Inner rotating element */}
-              <motion.div
-                className="absolute inset-8 border-2 border-white/30"
-                style={{
-                  borderRadius: innerBorderRadius,
-                }}
-                animate={{ rotate: -360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              />
-              
-              {/* Center diamond */}
-              <motion.div
-                className="absolute inset-0 flex items-center justify-center"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <div 
-                  className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-pink-500"
-                  style={{ transform: "rotate(45deg)" }}
-                />
-              </motion.div>
-            </motion.div>
+            {/* HOME SCREEN */}
+            {currentScreen === "home" && (
+              <HomeScreen onNavigate={handleArrowNavigation} />
+            )}
 
-            {/* Caption */}
-            <motion.p
-              className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-white/60 text-lg tracking-widest uppercase whitespace-nowrap"
-              style={{ opacity: shape1Opacity }}
-            >
-              Shape Transformation
-            </motion.p>
+            {/* SERVICES SCREEN */}
+            {currentScreen === "services" && (
+              <ServicesScreen onHome={handleHomeClick} />
+            )}
+
+            {/* ABOUT SCREEN */}
+            {currentScreen === "about" && (
+              <AboutScreen onHome={handleHomeClick} />
+            )}
+
+            {/* CONTACT SCREEN */}
+            {currentScreen === "contact" && (
+              <ContactScreen onHome={handleHomeClick} />
+            )}
           </motion.div>
-        </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* SECTION 3: Text Reveal with Zoom */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ opacity: text2Opacity, y: text2Y, scale: text2Scale }}
-        >
-          <div className="text-center max-w-4xl px-8">
-            <motion.div className="overflow-hidden">
-              <motion.h2 
-                className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
-                style={{ y: text2Y }}
-              >
-                Creative effects that
-              </motion.h2>
-            </motion.div>
-            <motion.div className="overflow-hidden mt-2">
-              <motion.h2 
-                className="text-4xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent"
-                style={{ y: text2Y }}
-              >
-                captivate & engage
-              </motion.h2>
-            </motion.div>
-            
-            {/* Animated underline */}
-            <motion.div 
-              className="h-1 bg-gradient-to-r from-indigo-500 via-pink-500 to-cyan-500 mt-8 mx-auto"
-              style={{ 
-                width: underlineWidth,
-              }}
-            />
-          </div>
-        </motion.div>
-
-        {/* SECTION 4: Final CTA */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ opacity: finalOpacity, scale: finalScale, y: finalY }}
-        >
-          <div className="text-center max-w-3xl px-8">
-            <motion.h2 
-              className="text-5xl md:text-7xl font-bold text-white mb-6"
-            >
-              Let&apos;s Transform
-              <span className="block bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">
-                Your Website
-              </span>
-            </motion.h2>
-            
-            <motion.p className="text-xl text-white/60 mb-12 max-w-xl mx-auto">
-              Smooth transitions, stunning effects, and creative motion design
-            </motion.p>
-
-            {/* Animated CTA button */}
-            <motion.button
-              className="group relative px-10 py-5 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full text-white text-lg font-semibold overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.span 
-                className="relative z-10"
-                animate={{ x: [0, 5, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                Get Started →
-              </motion.span>
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-pink-500 to-cyan-500"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.button>
-
-            {/* Tech badges */}
-            <motion.div 
-              className="flex justify-center gap-4 mt-12 flex-wrap"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              {["Zoom Effects", "Shape Morphing", "Text Reveals", "Smooth Scroll"].map((item, i) => (
-                <span 
-                  key={i}
-                  className="px-4 py-2 text-sm text-white/50 border border-white/20 rounded-full"
-                >
-                  {item}
-                </span>
-              ))}
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Scroll progress indicator */}
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          <ProgressDot progress={smoothProgress} threshold={0} />
-          <ProgressDot progress={smoothProgress} threshold={0.25} />
-          <ProgressDot progress={smoothProgress} threshold={0.5} />
-          <ProgressDot progress={smoothProgress} threshold={0.75} />
-        </div>
-      </div>
+      {/* Navigation arrows - context aware */}
+      {isLoaded && currentScreen === "home" && !isNavigating && (
+        <GlowingArrowSet
+          onNavigate={handleArrowNavigation}
+          showDown={true}
+          showLeft={true}
+          showRight={true}
+          showUp={false}
+        />
+      )}
     </main>
   );
 }
 
-// Separate component to use hooks properly
-function ProgressDot({ progress, threshold }: { progress: MotionValue<number>; threshold: number }) {
-  const backgroundColor = useTransform(
-    progress,
-    [threshold, threshold + 0.1],
-    ["rgba(255,255,255,0.2)", "rgba(236,72,153,1)"]
-  );
-  
+/**
+ * HOME SCREEN - The main landing with central shape
+ */
+function HomeScreen({ onNavigate }: { onNavigate: (dir: "up" | "down" | "left" | "right") => void }) {
   return (
-    <motion.div
-      className="w-2 h-2 rounded-full"
-      style={{ backgroundColor }}
-    />
+    <div className="relative flex flex-col items-center justify-center">
+      {/* Tagline above */}
+      <motion.div
+        className="absolute -top-32 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+      >
+        <TypewriterText
+          text="Advisory & Innovation"
+          className="text-sm md:text-base uppercase tracking-[0.4em] text-white/50"
+          speed={80}
+          delay={500}
+        />
+      </motion.div>
+
+      {/* Central Shape with integrated arrows */}
+      <CentralShape111
+        size="lg"
+        animated={true}
+        showArrows={true}
+        onArrowClick={onNavigate}
+      />
+
+      {/* Tagline below */}
+      <motion.div
+        className="absolute -bottom-24 text-center max-w-lg"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8, duration: 0.8 }}
+      >
+        <p className="text-white/40 text-sm tracking-wider">
+          Where <GradientText>complexity</GradientText> meets <GradientText>clarity</GradientText>
+        </p>
+      </motion.div>
+
+      {/* Corner decorations */}
+      <motion.div
+        className="absolute top-8 left-8 text-white/20 text-xs tracking-widest"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+      >
+        EMERGENCE
+      </motion.div>
+      <motion.div
+        className="absolute top-8 right-8 text-white/20 text-xs tracking-widest"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.3 }}
+      >
+        FRACTALS
+      </motion.div>
+      <motion.div
+        className="absolute bottom-8 left-8 text-white/20 text-xs tracking-widest"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.4 }}
+      >
+        COMPLEXITY
+      </motion.div>
+      <motion.div
+        className="absolute bottom-8 right-8 text-white/20 text-xs tracking-widest"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+      >
+        INNOVATION
+      </motion.div>
+    </div>
+  );
+}
+
+/**
+ * SERVICES SCREEN
+ */
+function ServicesScreen({ onHome }: { onHome: () => void }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center px-8 max-w-4xl">
+      {/* Home Icon */}
+      <div className="fixed top-8 left-8">
+        <GlowingHomeIcon onClick={onHome} size="md" />
+      </div>
+
+      {/* Title */}
+      <ParticleText
+        text="Services"
+        variant="assemble"
+        size="2xl"
+        className="mb-8"
+      />
+
+      {/* Service cards */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+      >
+        {[
+          { title: "Strategy", desc: "Navigate complexity with clarity", icon: "◇" },
+          { title: "Innovation", desc: "Transform ideas into reality", icon: "△" },
+          { title: "Advisory", desc: "Expert guidance for growth", icon: "○" },
+        ].map((service, i) => (
+          <motion.div
+            key={i}
+            className="relative p-6 rounded-2xl overflow-hidden group cursor-pointer"
+            style={{
+              background: "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(236,72,153,0.1) 100%)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 + i * 0.1 }}
+            whileHover={{ 
+              scale: 1.02,
+              borderColor: "rgba(255,255,255,0.3)",
+            }}
+          >
+            {/* Glow on hover */}
+            <motion.div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{
+                background: "radial-gradient(circle at 50% 50%, rgba(99,102,241,0.2) 0%, transparent 70%)",
+              }}
+            />
+            
+            <span className="text-3xl mb-4 block">{service.icon}</span>
+            <h3 className="text-xl font-semibold text-white mb-2">{service.title}</h3>
+            <p className="text-white/50 text-sm">{service.desc}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+/**
+ * ABOUT SCREEN
+ */
+function AboutScreen({ onHome }: { onHome: () => void }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center px-8 max-w-3xl text-center">
+      {/* Home Icon */}
+      <div className="fixed top-8 left-8">
+        <GlowingHomeIcon onClick={onHome} size="md" />
+      </div>
+
+      {/* Title */}
+      <ParticleText
+        text="About"
+        variant="gradient"
+        size="2xl"
+        className="mb-6"
+      />
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+        className="space-y-6"
+      >
+        <SplitRevealText
+          text="We believe in the power of emergence—"
+          className="text-2xl md:text-3xl font-light text-white"
+          delay={0.3}
+        />
+        <SplitRevealText
+          text="where simple rules create extraordinary complexity."
+          className="text-2xl md:text-3xl font-light text-white/80"
+          delay={0.5}
+        />
+        
+        <motion.p
+          className="text-white/50 mt-8 leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          Like fractals in nature, our approach reveals patterns within patterns,
+          unlocking insights that drive transformative growth. We see the connections
+          others miss and help you harness the power of complexity.
+        </motion.p>
+      </motion.div>
+
+      {/* Decorative fractal element */}
+      <motion.div
+        className="absolute -z-10 opacity-20"
+        initial={{ scale: 0, rotate: 0 }}
+        animate={{ scale: 1, rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      >
+        <svg width="400" height="400" viewBox="0 0 400 400">
+          <polygon
+            points="200,50 300,150 300,250 200,350 100,250 100,150"
+            fill="none"
+            stroke="url(#aboutGradient)"
+            strokeWidth="1"
+          />
+          <defs>
+            <linearGradient id="aboutGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#6366f1" />
+              <stop offset="100%" stopColor="#ec4899" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </motion.div>
+    </div>
+  );
+}
+
+/**
+ * CONTACT SCREEN
+ */
+function ContactScreen({ onHome }: { onHome: () => void }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center px-8 max-w-2xl text-center">
+      {/* Home Icon */}
+      <div className="fixed top-8 left-8">
+        <GlowingHomeIcon onClick={onHome} size="md" />
+      </div>
+
+      {/* Title */}
+      <ParticleText
+        text="Connect"
+        variant="wave"
+        size="2xl"
+        className="mb-8"
+      />
+
+      {/* Contact info */}
+      <motion.div
+        className="space-y-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <p className="text-white/60 text-lg">
+          Ready to explore the possibilities?
+        </p>
+
+        {/* Email */}
+        <motion.a
+          href="mailto:hello@1-1-1.be"
+          className="block text-2xl md:text-3xl font-light"
+          whileHover={{ scale: 1.02 }}
+        >
+          <GradientText gradient="from-indigo-400 via-pink-400 to-cyan-400">
+            hello@1-1-1.be
+          </GradientText>
+        </motion.a>
+
+        {/* CTA Button */}
+        <motion.button
+          className="relative px-8 py-4 mt-8 rounded-full overflow-hidden group"
+          style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(236,72,153,0.2) 100%)",
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {/* Button glow */}
+          <motion.div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100"
+            style={{
+              background: "linear-gradient(135deg, rgba(99,102,241,0.3) 0%, rgba(236,72,153,0.3) 100%)",
+            }}
+            transition={{ duration: 0.3 }}
+          />
+          
+          <span className="relative z-10 text-white font-medium tracking-wider">
+            Start a Conversation →
+          </span>
+        </motion.button>
+      </motion.div>
+
+      {/* Social links placeholder */}
+      <motion.div
+        className="flex gap-6 mt-12"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
+        {["LinkedIn", "Twitter", "Instagram"].map((social, i) => (
+          <motion.a
+            key={i}
+            href="#"
+            className="text-white/40 text-sm hover:text-white/80 transition-colors tracking-wider"
+            whileHover={{ y: -2 }}
+          >
+            {social}
+          </motion.a>
+        ))}
+      </motion.div>
+    </div>
   );
 }
