@@ -210,7 +210,7 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
   }, [duration, onComplete]);
 
   // Render different shapes
-  const renderShape = (particle: Particle, x: string, y: string, scale: number, opacity: number) => {
+  const renderShape = (particle: Particle) => {
     const baseProps = {
       fill: particle.color,
       filter: "url(#glow)",
@@ -225,7 +225,7 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
             points={`0,-${particle.size} ${particle.size * 0.866},${particle.size * 0.5} -${particle.size * 0.866},${particle.size * 0.5}`}
             {...baseProps}
             initial={{ x: `${particle.startX}%`, y: `${particle.startY}%`, scale: 0, opacity: 0, rotate: 0 }}
-            animate={getParticleAnimation(particle, scale, opacity)}
+            animate={getParticleAnimation(particle)}
             transition={getParticleTransition(particle)}
           />
         );
@@ -236,7 +236,7 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
             points={`0,-${particle.size} ${particle.size},0 0,${particle.size} -${particle.size},0`}
             {...baseProps}
             initial={{ x: `${particle.startX}%`, y: `${particle.startY}%`, scale: 0, opacity: 0, rotate: 0 }}
-            animate={getParticleAnimation(particle, scale, opacity)}
+            animate={getParticleAnimation(particle)}
             transition={getParticleTransition(particle)}
           />
         );
@@ -254,7 +254,7 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
             points={starPoints.join(" ")}
             {...baseProps}
             initial={{ x: `${particle.startX}%`, y: `${particle.startY}%`, scale: 0, opacity: 0, rotate: 0 }}
-            animate={getParticleAnimation(particle, scale, opacity)}
+            animate={getParticleAnimation(particle)}
             transition={getParticleTransition(particle)}
           />
         );
@@ -265,14 +265,14 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
             r={particle.size}
             {...baseProps}
             initial={{ cx: `${particle.startX}%`, cy: `${particle.startY}%`, scale: 0, opacity: 0 }}
-            animate={getCircleAnimation(particle, scale, opacity)}
+            animate={getCircleAnimation(particle)}
             transition={getParticleTransition(particle)}
           />
         );
     }
   };
 
-  const getCircleAnimation = (particle: Particle, scale: number, opacity: number) => {
+  const getCircleAnimation = (particle: Particle) => {
     switch (phase) {
       case "burst":
         return { cx: `${particle.startX}%`, cy: `${particle.startY}%`, scale: 1, opacity: 0.8 };
@@ -291,7 +291,7 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
     }
   };
 
-  const getParticleAnimation = (particle: Particle, scale: number, opacity: number) => {
+  const getParticleAnimation = (particle: Particle) => {
     switch (phase) {
       case "burst":
         return { x: `${particle.startX}%`, y: `${particle.startY}%`, scale: 1, opacity: 0.8, rotate: particle.rotation };
@@ -413,7 +413,7 @@ export default function EmergenceLoader({ onComplete, duration = 4500 }: Emergen
             })}
 
             {/* Render all particles */}
-            {particles.map((particle) => renderShape(particle, "", "", 1, 1))}
+            {particles.map((particle) => renderShape(particle))}
           </svg>
 
           {/* Central hexagonal glow burst */}
